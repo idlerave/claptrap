@@ -1,6 +1,4 @@
-import type { App, Payload } from "../types";
-
-export const Apps: App[] = [{ name: "google", endpoint: "https://google.com" }];
+import type { App, DiscordPayload as Payload } from '../types';
 
 export const Color = {
 	SUCCESS: 0x00ff00,
@@ -12,13 +10,13 @@ export const DiscordPayload = (app: App): Payload => {
 		embeds: [
 			{
 				title: `Notification - ${app.name}`,
-				description: "The endpoint is ok.",
+				description: 'The endpoint is ok.',
 				color: Color.SUCCESS,
 				fields: [
-					{ name: "Status", value: "Online", inline: true },
+					{ name: 'Status', value: 'Online', inline: true },
 					{
-						name: "Time",
-						value: new Date().toLocaleDateString(),
+						name: 'Time',
+						value: new Date().toISOString(),
 						inline: true,
 					},
 				],
@@ -35,10 +33,10 @@ export const DiscordErrorPayload = (app: App, error?: unknown): Payload => {
 				description: `The endpoint is offline.\n${error}`,
 				color: Color.ERROR,
 				fields: [
-					{ name: "Status", value: "Offline", inline: true },
+					{ name: 'Status', value: 'Offline', inline: true },
 					{
-						name: "Time",
-						value: new Date().toLocaleDateString(),
+						name: 'Time',
+						value: new Date().toISOString(),
 						inline: true,
 					},
 				],

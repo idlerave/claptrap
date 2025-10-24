@@ -1,28 +1,47 @@
-import dotenv from "dotenv";
-import { Hono } from "hono";
-import { Scheduler } from "./task";
-import { seconds } from "./utils";
-import { Health } from "./actions/health";
+import dotenv from 'dotenv';
+import { Hono } from 'hono';
+import { Scheduler } from './tasks';
+import { seconds } from './utils';
+import { health, Health } from './actions/health.action';
+import { cors } from 'hono/cors';
+import { check } from './routes/public/check.routes';
 
 dotenv.config({
-	path: ".env",
+	path: '.env',
 });
 
-const app = new Hono();
-const scheduler = new Scheduler();
-const health = new Health();
+class Claptrap {
+	public app: Hono;
+	public health: Health = new Health();
+	protected scheduler: Scheduler;
 
-const task = () =>
-	scheduler.addTask({
-		name: "Health Checkup",
-		interval: seconds(10),
-		action: () => health.check(),
-	});
+	constructor() {
+		this.app = new Hono();
+		this.scheduler = new Scheduler();
+	}
 
-task();
+	public static async create(): Promise<Claptrap> {
+		const instance = new Claptrap();
+		await instance.init();
+		return instance;
+	}
 
-app.get("/", (c) => {
-	return c.text("Hello Hono!");
-});
+	private async init(): Promise<void> {
+		this.health = health;
 
-export default app;
+		this.scheduler.addTask({
+			name: 'Health Checkup',
+			interval: seconds(60),
+			action: async () => await this.health.check(),
+		});
+
+		this.app.use('/*', cors());
+		this.app.route('/', check);
+	}
+}
+const ct = await Claptrap.create();
+
+export default {
+	port: 3001,
+	fetch: ct.app.fetch,
+};
