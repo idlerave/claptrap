@@ -2,9 +2,11 @@ import { Hono } from 'hono';
 import type { HonoEnv } from '../../types';
 import { insertApp } from '../../db/queries';
 import { nanoid } from 'nanoid';
-import { health } from '../../actions/health.action';
+import { Health } from '../../actions/health.action';
 
 export const check = new Hono<HonoEnv>();
+
+const health = await Health.instance;
 
 check.get('/health', (c) => {
 	return c.json({ message: 'A chuva é do povo.' }, 200);

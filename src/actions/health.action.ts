@@ -9,8 +9,9 @@ export class Health {
 	protected webhookEndpoint: string;
 	protected webhook: Webhook;
 	protected history: Map<string, AppStatus & { name: string }>;
+	static #instance: Promise<Health>;
 
-	constructor() {
+	protected constructor() {
 		this.apps = [];
 		this.webhookEndpoint = process.env.DISCORD_WEBHOOK_ENDPOINT as string;
 		this.webhook = new Webhook();
@@ -38,6 +39,14 @@ export class Health {
 		const instance = new Health();
 		await instance.init();
 		return instance;
+	}
+
+	public static get instance(): Promise<Health> {
+		if (!Health.#instance) {
+			Health.#instance = Health.create();
+		}
+
+		return Health.#instance;
 	}
 
 	public async check(): Promise<void> {
@@ -85,5 +94,3 @@ export class Health {
 		return this.history.get(id);
 	}
 }
-
-export const health = await Health.create();
